@@ -1,7 +1,7 @@
-import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import streamlit as st
 
 # Cargar los archivos Excel
 file_path_facultades = "./FACUL123.xlsx"
@@ -26,11 +26,6 @@ def filtrar_datos(region, financiamiento, facultad):
 
 # Función para actualizar el gráfico de participación por facultad
 def actualizar_grafico(df_filtrado):
-    # Verificar si el DataFrame está vacío
-    if df_filtrado.empty:
-        st.write("No hay datos para mostrar con los filtros seleccionados.")
-        return
-
     # Agrupar por Instituto y Año
     df_agrupado = df_filtrado.groupby(['Instituto', 'AÑO'])['Participación'].sum().unstack().fillna(0)
     
@@ -42,27 +37,35 @@ def actualizar_grafico(df_filtrado):
     
     bar_width = 0.2
     indices = np.arange(len(institutos))
+    colors = plt.get_cmap('Blues')(np.linspace(0.3, 0.8, len(años)))
     
     plt.figure(figsize=(18, 10))
     
     # Dibujar barras para cada año
     for i, año in enumerate(años):
-        plt.bar(indices + i * bar_width, df_agrupado[año], bar_width, label=f"Año {año}", color=plt.cm.Blues(i/len(años)))
+        plt.bar(indices + i * bar_width, df_agrupado[año], bar_width, label=f"Año {año}", color=colors[i])
     
     plt.xlabel('Universidad')
     plt.ylabel('Participación por facultad (%)')
     plt.title('Participación por Facultad por Año (%)')
 
-    # Colocar las etiquetas de porcentaje encima de las barras
+    # Colocar las etiquetas de porcentaje
     for i, año in enumerate(años):
         for j, valor in enumerate(df_agrupado[año]):
             if valor > 0:
                 plt.text(indices[j] + i * bar_width, valor + 0.2, f'{valor:.0f}%', ha='center', va='bottom', fontsize=9)
     
+    # Ajustar etiquetas de universidades en el eje X
     plt.xticks(indices + bar_width, institutos, rotation=45, ha='right')
+    
+    # Resaltar Universidad de las Américas
+    for tick in plt.gca().get_xticklabels():
+        if 'UNIVERSIDAD DE LAS AMERICAS' in tick.get_text().upper():
+            tick.set_fontweight('bold')
+    
     plt.legend()
     plt.tight_layout(pad=3)
-    plt.show()
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.3)
     st.pyplot(plt)
 
 # Streamlit UI
@@ -85,21 +88,3 @@ if not df_filtrado.empty:
     actualizar_grafico(df_filtrado)
 else:
     st.write("No hay datos para mostrar con los filtros seleccionados.")
-
-# Botones dinámicos por carrera
-st.subheader('Filtrar por carrera')
-if facultad != "Todos":
-    carreras = df_carreras[df_carreras['FACULTAD UDLA'] == facultad]['CARRERA UDLA'].unique()
-    for carrera in carreras:
-        if st.button(carrera):
-            # Cuando se presiona un botón, actualiza el gráfico para esa carrera
-            df_carrera_filtrado = df_carreras[
-                (df_carreras['REGION'] == region) &
-                (df_carreras['FINANCIAMIENTO'] == financiamiento) &
-                (df_carreras['FACULTAD UDLA'] == facultad) &
-                (df_carreras['CARRERA UDLA'] == carrera)
-            ]
-            if not df_carrera_filtrado.empty:
-                actualizar_grafico(df_carrera_filtrado)
-            else:
-                st.write(f"No hay datos para la carrera {carrera} con los filtros seleccionados.")
