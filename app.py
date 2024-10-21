@@ -4,8 +4,8 @@ import numpy as np
 import streamlit as st
 
 # Cargar los archivos Excel
-file_path_facultades = r"C:\Users\domenica.villalva.01\OneDrive - Universidad de Las Américas\FACUL123.xlsx"
-file_path_carreras = r"C:\Users\domenica.villalva.01\Downloads\CARRERAS.xlsx"
+file_path_facultades = "./FACUL123.xlsx"
+file_path_carreras = "./CARRERAS.xlsx"
 
 df_facultades = pd.read_excel(file_path_facultades, sheet_name='Hoja1')
 df_carreras = pd.read_excel(file_path_carreras)
