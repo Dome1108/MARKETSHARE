@@ -32,7 +32,7 @@ def actualizar_grafico(df_filtrado):
         return
 
     # Agrupar por Instituto y Año
-    df_agrupado = df_filtrado.groupby(['Instituto', 'AÑO'])['Participación por facultad'].sum().unstack().fillna(0)
+    df_agrupado = df_filtrado.groupby(['Instituto', 'AÑO'])['Participación'].sum().unstack().fillna(0)
     
     # Convertir a porcentaje
     df_agrupado = df_agrupado * 100
