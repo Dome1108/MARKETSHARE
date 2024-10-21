@@ -26,6 +26,11 @@ def filtrar_datos(region, financiamiento, facultad):
 
 # Función para actualizar el gráfico de participación por facultad
 def actualizar_grafico(df_filtrado):
+    # Verificar si el DataFrame está vacío
+    if df_filtrado.empty:
+        st.write("No hay datos para mostrar con los filtros seleccionados.")
+        return
+
     # Agrupar por Instituto y Año
     df_agrupado = df_filtrado.groupby(['Instituto', 'AÑO'])['Participación por facultad'].sum().unstack().fillna(0)
     
